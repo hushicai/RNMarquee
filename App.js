@@ -1,22 +1,21 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, Animated, Text} from 'react-native';
+import {StyleSheet, View, Text} from 'react-native';
 
 export default class App extends Component {
   constructor() {
     super();
     this.text = '大家好，这是一个跑马灯例子。'.split('');
-    this.animatedValues = this.text.map(v => {
-      return new Animated.Value(0);
-    });
+    this.maxCount = this.text.length;
+    this.count = 1;
   }
   componentDidMount() {
-    const animations = this.animatedValues.map((v, i) => {
-      return Animated.timing(v, {
-        toValue: 1,
-        duration: 400,
-      });
-    });
-    Animated.sequence(animations).start();
+    this.timer = setInterval(() => {
+      this.count += 1;
+      this.forceUpdate();
+      if (this.count >= this.maxCount) {
+        clearInterval(this.timer);
+      }
+    }, 400);
   }
   render() {
     return (
@@ -27,15 +26,17 @@ export default class App extends Component {
           </Text>
         </View>
         <View style={styles.content}>
-          {this.animatedValues.map((v, i) => {
-            const iv = v.interpolate({
-              inputRange: [0, 1],
-              outputRange: ['rgb(255, 255, 255)', 'rgb(255, 235, 0)'],
-            });
+          {new Array(this.maxCount).fill(0).map((v, i) => {
             return (
-              <Animated.Text key={i} style={{fontSize: 22, color: iv}}>
+              <Text
+                key={i}
+                style={
+                  i < this.count
+                    ? {fontSize: 22, color: 'rgb(255, 235, 0)'}
+                    : {fontSize: 22, color: 'rgb(255, 255, 255)'}
+                }>
                 {this.text[i]}
-              </Animated.Text>
+              </Text>
             );
           })}
         </View>
